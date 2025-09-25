@@ -1,18 +1,16 @@
-// server.js
 const express = require("express");
 const { MongoClient, ObjectId } = require("mongodb");
 const cors = require("cors");
 
 const app = express();
 app.use(cors());
-app.use(express.json()); // parse JSON bodies
+app.use(express.json());
 
 // MongoDB connection
 const CONNECTION_STRING = "mongodb+srv://Admin1:SherrrDC%401235@cluster0.ayzn8gl.mongodb.net/tourbucketlist?retryWrites=true&w=majority";
 const DATABASENAME = "tourbucketlist";
 let database;
 
-// Connect to MongoDB
 MongoClient.connect(CONNECTION_STRING)
     .then(client => {
         database = client.db(DATABASENAME);
@@ -20,12 +18,6 @@ MongoClient.connect(CONNECTION_STRING)
     })
     .catch(err => console.error("MongoDB connection failed:", err));
 
-// Routes
-
-// Test server
-app.get("/ping", (req, res) => res.send("Server is alive!"));
-
-// Get all bucket list items
 app.get("/tourbucketlist", async (req, res) => {
     if (!database) return res.status(500).send({ error: "Database not connected yet" });
     try {
@@ -38,7 +30,6 @@ app.get("/tourbucketlist", async (req, res) => {
     }
 });
 
-// Get a single item by ID
 app.get("/tourbucketlist/:id", async (req, res) => {
     if (!database) return res.status(500).send({ error: "Database not connected yet" });
     try {
@@ -51,11 +42,11 @@ app.get("/tourbucketlist/:id", async (req, res) => {
     }
 });
 
-// Add a new bucket list item
+// Addition
 app.post("/tourbucketlist", async (req, res) => {
     if (!database) return res.status(500).send({ error: "Database not connected yet" });
     try {
-        const newItem = req.body; // { title, description, rating, etc. }
+        const newItem = req.body;
         const result = await database.collection("tourbucketlistcollection").insertOne(newItem);
         res.send({ message: "Item added", id: result.insertedId });
     } catch (err) {
@@ -64,7 +55,7 @@ app.post("/tourbucketlist", async (req, res) => {
     }
 });
 
-// Update an existing bucket list item
+// Updation
 app.put("/tourbucketlist/:id", async (req, res) => {
     if (!database) return res.status(500).send({ error: "Database not connected yet" });
     try {
@@ -81,7 +72,7 @@ app.put("/tourbucketlist/:id", async (req, res) => {
     }
 });
 
-// Delete a bucket list item
+// Deletion
 app.delete("/tourbucketlist/:id", async (req, res) => {
     if (!database) return res.status(500).send({ error: "Database not connected yet" });
     try {
@@ -94,6 +85,5 @@ app.delete("/tourbucketlist/:id", async (req, res) => {
     }
 });
 
-// Start server
 const PORT = 5038;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

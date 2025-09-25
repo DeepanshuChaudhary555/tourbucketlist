@@ -5,7 +5,6 @@ function TripItem({ trip, fetchTrips }) {
   const [title, setTitle] = useState(trip.title);
   const [description, setDescription] = useState(trip.description);
 
-  // Delete a trip
   const handleDelete = async () => {
     try {
       await fetch(`http://localhost:5038/tourbucketlist/${trip._id}`, {
@@ -17,7 +16,6 @@ function TripItem({ trip, fetchTrips }) {
     }
   };
 
-  // Update a trip
   const handleUpdate = async () => {
     try {
       await fetch(`http://localhost:5038/tourbucketlist/${trip._id}`, {

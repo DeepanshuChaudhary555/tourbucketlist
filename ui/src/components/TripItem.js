@@ -12,8 +12,12 @@ function TripItem({ trip, fetchTrips }) {
   const handleDelete = async () => {
     if (window.confirm(`Are you sure you want to remove "${trip.title}" from your bucket list?`)) {
       try {
+        const token = localStorage.getItem("token");
         await fetch(`http://localhost:5038/tourbucketlist/${trip._id}`, {
           method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
         });
         fetchTrips();
       } catch (err) {
@@ -24,9 +28,13 @@ function TripItem({ trip, fetchTrips }) {
 
   const handleUpdate = async () => {
     try {
+      const token = localStorage.getItem("token");
       await fetch(`http://localhost:5038/tourbucketlist/${trip._id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({ 
           title, 
           description, 

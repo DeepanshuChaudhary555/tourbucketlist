@@ -39,7 +39,7 @@ function App() {
       </div>
       
       <footer className="footer">
-        <p>Made with ❤️ for wanderlust souls</p>
+        <p>Made with for wanderlust souls</p>
       </footer>
     </div>
   );

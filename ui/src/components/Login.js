@@ -58,7 +58,7 @@ function Login({ onLogin }) {
     <div className="auth-container">
       <div className="auth-card">
         <h2 className="auth-title">
-          {isLogin ? "🌍 Welcome Back, Traveler!" : "🎒 Start Your Journey"}
+          {isLogin ? "Welcome Back, Traveler!" : "Start Your Journey"}
         </h2>
         <p className="auth-subtitle">
           {isLogin 
@@ -76,7 +76,7 @@ function Login({ onLogin }) {
                 className="form-input"
                 type="text"
                 name="username"
-                placeholder="👤 Username"
+                placeholder="Username"
                 value={formData.username}
                 onChange={handleInputChange}
                 required
@@ -89,7 +89,7 @@ function Login({ onLogin }) {
               className="form-input"
               type="email"
               name="email"
-              placeholder="📧 Email Address"
+              placeholder="Email Address"
               value={formData.email}
               onChange={handleInputChange}
               required
@@ -101,7 +101,7 @@ function Login({ onLogin }) {
               className="form-input"
               type="password"
               name="password"
-              placeholder="🔒 Password"
+              placeholder="Password"
               value={formData.password}
               onChange={handleInputChange}
               required
@@ -114,7 +114,7 @@ function Login({ onLogin }) {
             className="btn-primary"
             disabled={loading}
           >
-            {loading ? "⏳ Processing..." : (isLogin ? "🚀 Sign In" : "✨ Create Account")}
+            {loading ? "⏳ Processing..." : (isLogin ? " Sign In" : " Create Account")}
           </button>
         </form>
 

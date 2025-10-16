@@ -305,6 +305,122 @@ app.delete("/tourbucketlist/:id", verifyToken, async (req, res) => {
     }
 });
 
+// Get top-rated destinations (public endpoint)
+app.get("/top-destinations", async (req, res) => {
+    if (!database) return res.status(500).send({ error: "Database not connected yet" });
+    
+    try {
+        // Aggregation pipeline to get top-rated destinations
+        const topDestinations = await database.collection("tourbucketlistcollection").aggregate([
+            {
+                $match: {
+                    rating: { $exists: true, $gte: 4 }
+                }
+            },
+            {
+                $group: {
+                    _id: "$title",
+                    avgRating: { $avg: "$rating" },
+                    totalVisits: { $sum: 1 },
+                    description: { $first: "$description" },
+                    location: { $first: "$location" },
+                    budget: { $first: "$budget" }
+                }
+            },
+            {
+                $sort: { avgRating: -1, totalVisits: -1 }
+            },
+            {
+                $limit: 6
+            },
+            {
+                $project: {
+                    destination: "$_id",
+                    avgRating: { $round: ["$avgRating", 1] },
+                    totalVisits: 1,
+                    description: 1,
+                    country: "$location",
+                    budget: 1,
+                    // Add placeholder image based on destination name
+                    image: {
+                        $concat: [
+                            "https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&w=400&q=80"
+                        ]
+                    },
+                    activities: ["Sightseeing", "Photography", "Adventure"],
+                    _id: 0
+                }
+            }
+        ]).toArray();
+
+        // If no destinations found, return sample data
+        if (topDestinations.length === 0) {
+            const sampleDestinations = [
+                {
+                    destination: "Santorini",
+                    country: "Greece",
+                    avgRating: 4.8,
+                    totalVisits: 15,
+                    description: "Beautiful Greek island with stunning sunsets and white-washed buildings",
+                    image: "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?ixlib=rb-4.0.3",
+                    activities: ["Sunset watching", "Wine tasting", "Beach lounging"]
+                },
+                {
+                    destination: "Kyoto",
+                    country: "Japan",
+                    avgRating: 4.7,
+                    totalVisits: 12,
+                    description: "Ancient temples, traditional gardens, and rich cultural heritage",
+                    image: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?ixlib=rb-4.0.3",
+                    activities: ["Temple visits", "Tea ceremony", "Cherry blossom viewing"]
+                },
+                {
+                    destination: "Machu Picchu",
+                    country: "Peru",
+                    avgRating: 4.9,
+                    totalVisits: 18,
+                    description: "Ancient Incan citadel high in the Andes Mountains",
+                    image: "https://images.unsplash.com/photo-1587595431973-160d0d94add1?ixlib=rb-4.0.3",
+                    activities: ["Hiking", "Photography", "Historical exploration"]
+                },
+                {
+                    destination: "Bora Bora",
+                    country: "French Polynesia",
+                    avgRating: 4.6,
+                    totalVisits: 9,
+                    description: "Tropical paradise with crystal-clear waters and overwater bungalows",
+                    image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3",
+                    activities: ["Snorkeling", "Water sports", "Island hopping"]
+                },
+                {
+                    destination: "Northern Lights",
+                    country: "Norway",
+                    avgRating: 4.8,
+                    totalVisits: 7,
+                    description: "Breathtaking natural light display in polar regions",
+                    image: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?ixlib=rb-4.0.3",
+                    activities: ["Aurora viewing", "Dog sledding", "Ice hotels"]
+                },
+                {
+                    destination: "Dubai",
+                    country: "UAE",
+                    avgRating: 4.5,
+                    totalVisits: 14,
+                    description: "Modern city with luxury shopping, ultramodern architecture",
+                    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?ixlib=rb-4.0.3",
+                    activities: ["Desert safari", "Shopping", "Skydiving"]
+                }
+            ];
+            return res.json(sampleDestinations);
+        }
+
+        res.json(topDestinations);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to fetch top destinations" });
+    }
+});
+
 // Get Database Schema Info (for development/debugging)
 app.get("/schema", async (req, res) => {
     if (!database) return res.status(500).send({ error: "Database not connected yet" });

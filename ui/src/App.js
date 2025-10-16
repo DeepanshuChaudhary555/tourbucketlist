@@ -2,12 +2,14 @@ import React, { useState, useEffect, useCallback } from "react";
 import TripList from "./components/TripList";
 import AddTrip from "./components/AddTrip";
 import Login from "./components/Login"; // Assuming this handles both login/signup
+import Homepage from "./components/Homepage";
 import "./App.css";
 
 function App() {
   const [trips, setTrips] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showLogin, setShowLogin] = useState(false);
 
   const fetchTrips = useCallback(async () => {
     try {
@@ -44,6 +46,7 @@ function App() {
     }
     // Remove auth-mode class when login succeeds
     document.body.classList.remove('auth-mode');
+    setShowLogin(false);
     fetchTrips();
   };
 
@@ -52,8 +55,9 @@ function App() {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     setTrips([]);
-    // Add auth-mode class when logging out
-    document.body.classList.add('auth-mode');
+    setShowLogin(false);
+    // Don't add auth-mode class, let homepage handle its own styling
+    document.body.classList.remove('auth-mode');
   };
 
   useEffect(() => {
@@ -67,7 +71,8 @@ function App() {
         document.body.classList.remove('auth-mode');
         await fetchTrips();
       } else {
-        document.body.classList.add('auth-mode');
+        // Don't add auth-mode class here, let the component decide
+        document.body.classList.remove('auth-mode');
       }
       setLoading(false);
     };
@@ -86,13 +91,35 @@ function App() {
     );
   }
 
+  const handleGetStarted = () => {
+    setShowLogin(true);
+    document.body.classList.add('auth-mode');
+  };
+
+  const handleBackToHome = () => {
+    setShowLogin(false);
+    document.body.classList.remove('auth-mode');
+  };
+
   if (!user) {
-    return (
-      <div className="App">
-        {/* Login component will render inside the body, applying auth-container styles */}
-        <Login onLogin={handleLogin} />
-      </div>
-    );
+    if (showLogin) {
+      return (
+        <div className="App">
+          <div className="auth-navigation">
+            <button className="back-to-home-btn" onClick={handleBackToHome}>
+              ← Back to Home
+            </button>
+          </div>
+          <Login onLogin={handleLogin} />
+        </div>
+      );
+    } else {
+      return (
+        <div className="App">
+          <Homepage onGetStarted={handleGetStarted} />
+        </div>
+      );
+    }
   }
 
   return (
